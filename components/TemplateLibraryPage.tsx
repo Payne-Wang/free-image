@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import Spinner from './Spinner';
 import { SearchIcon } from './icons';
-import { Template } from '../App';
+import type { Template } from '../types';
 
 
 // New component to handle fetching and displaying template image
@@ -68,33 +68,14 @@ const TemplateCard: React.FC<{
 
 interface TemplateLibraryPageProps {
     onTemplateSelect: (template: Template) => void;
+    templates: Template[];
 }
 
 const ITEMS_PER_PAGE = 9;
 
-const TemplateLibraryPage: React.FC<TemplateLibraryPageProps> = ({ onTemplateSelect }) => {
-    const [templates, setTemplates] = useState<Template[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const TemplateLibraryPage: React.FC<TemplateLibraryPageProps> = ({ onTemplateSelect, templates }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
-
-    useEffect(() => {
-        const fetchTemplates = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch('/templates.json');
-                if (!response.ok) throw new Error('Failed to load templates.');
-                const data: Template[] = await response.json();
-                setTemplates(data);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'An unknown error occurred.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchTemplates();
-    }, []);
 
     // Reset page to 1 when search query changes
     useEffect(() => {
@@ -118,14 +99,6 @@ const TemplateLibraryPage: React.FC<TemplateLibraryPageProps> = ({ onTemplateSel
             setCurrentPage(newPage);
         }
     };
-
-    if (isLoading) {
-        return <div className="flex justify-center items-center h-64"><Spinner /></div>;
-    }
-
-    if (error) {
-        return <div className="text-center text-red-400 bg-red-900/50 p-6 rounded-lg">{error}</div>;
-    }
 
     return (
         <div className="w-full max-w-6xl mx-auto p-4 md:p-8 animate-fade-in">

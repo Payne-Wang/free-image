@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { UploadIcon, PaintBrushIcon, TemplateLibraryIcon } from './icons';
 import { generateImageFromText } from '../services/geminiService';
 import Spinner from './Spinner';
-import { Template } from '../App';
+import type { Template } from '../types';
 
 // New component to handle fetching and displaying template icon
 const TemplateButton: React.FC<{
@@ -65,33 +65,15 @@ interface StartScreenProps {
   onImageGenerated: (dataUrl: string) => void;
   onTemplateSelect: (template: Template) => void;
   onShowTemplateLibrary: () => void;
+  templates: Template[];
 }
 
-const StartScreen: React.FC<StartScreenProps> = ({ onFileSelect, onImageGenerated, onTemplateSelect, onShowTemplateLibrary }) => {
+const StartScreen: React.FC<StartScreenProps> = ({ onFileSelect, onImageGenerated, onTemplateSelect, onShowTemplateLibrary, templates }) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [generationPrompt, setGenerationPrompt] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string|null>(null);
   const [aspectRatio, setAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '4:3' | '3:4'>('1:1');
-  const [templates, setTemplates] = useState<Template[]>([]);
-
-  useEffect(() => {
-    // Fetch templates on component mount
-    const fetchTemplates = async () => {
-      try {
-        const response = await fetch('/templates.json');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data: Template[] = await response.json();
-        setTemplates(data);
-      } catch (error) {
-        console.error("Failed to fetch templates:", error);
-      }
-    };
-
-    fetchTemplates();
-  }, []);
 
   useEffect(() => {
     const handlePaste = (event: ClipboardEvent) => {

@@ -23,6 +23,8 @@ import PastForwardPage from './components/PastForwardPage';
 import BeatSyncPage from './components/BeatSyncPage';
 import TemplateLibraryPage from './components/TemplateLibraryPage';
 import TemplateDisplayPage from './components/TemplateDisplayPage';
+import TEMPLATES from './templates.ts';
+import type { Template } from './types';
 
 // Helper to convert a data URL string to a File object
 const dataURLtoFile = (dataurl: string, filename: string): File => {
@@ -108,14 +110,6 @@ type LastAction =
 
 export type View = 'editor' | 'past-forward' | 'beatsync' | 'template-library' | 'template-display';
 export type EditorInitialState = { baseImageUrl: string; prompt: string };
-export interface Template {
-  id: string;
-  name: string;
-  iconUrl: string;
-  baseUrl: string;
-  description: string;
-  prompt: string;
-}
 
 
 const EditorView: React.FC<{
@@ -125,7 +119,8 @@ const EditorView: React.FC<{
     onTemplateLoaded: () => void;
     onTemplateSelect: (template: Template) => void;
     onShowTemplateLibrary: () => void;
-}> = ({ onFileSelect, onImageGenerated, initialState, onTemplateLoaded, onTemplateSelect, onShowTemplateLibrary }) => {
+    templates: Template[];
+}> = ({ onFileSelect, onImageGenerated, initialState, onTemplateLoaded, onTemplateSelect, onShowTemplateLibrary, templates }) => {
   const [history, setHistory] = useState<File[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -544,6 +539,7 @@ const EditorView: React.FC<{
             onImageGenerated={handleLocalImageGenerated}
             onTemplateSelect={onTemplateSelect}
             onShowTemplateLibrary={onShowTemplateLibrary}
+            templates={templates}
         />
       ) : (
         <div className="w-full max-w-7xl flex flex-col items-center gap-6 animate-fade-in">
@@ -724,7 +720,7 @@ const App: React.FC = () => {
     switch (activeView) {
         case 'past-forward': return <PastForwardPage />;
         case 'beatsync': return <BeatSyncPage />;
-        case 'template-library': return <TemplateLibraryPage onTemplateSelect={handleTemplateSelect} />;
+        case 'template-library': return <TemplateLibraryPage templates={TEMPLATES} onTemplateSelect={handleTemplateSelect} />;
         case 'template-display': 
             return selectedTemplate ? (
                 <TemplateDisplayPage
@@ -745,6 +741,7 @@ const App: React.FC = () => {
               onTemplateLoaded={handleTemplateLoaded}
               onTemplateSelect={handleTemplateSelect}
               onShowTemplateLibrary={handleShowTemplateLibrary}
+              templates={TEMPLATES}
           />;
     }
   };

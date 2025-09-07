@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Template } from '../App';
+import type { Template } from '../types';
 import Spinner from './Spinner';
 import { generateAdjustedImage } from '../services/geminiService';
 import { PaintBrushIcon, CopyIcon, CheckIcon, ZoomInIcon } from './icons';

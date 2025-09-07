@@ -1,4 +1,11 @@
-[
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+*/
+
+import type { Template } from './types';
+
+const TEMPLATES: Template[] = [
   {
     "id": "template-figurine-design",
     "name": "热门手办",
@@ -55,4 +62,6 @@
     "description": "卡哇伊风，粗线条、简洁赛璐璐上色、鲜艳配色，纯白背景。",
     "prompt": "Analyze the input image and extract the main subject. Design a kawaii-style square sticker of that subject: bold, clean outlines, simple cel-shading, vibrant color palette, centered composition, and a pure white background. Keep the subject recognizable while simplifying shapes; add a neat white die-cut border. Avoid text, logos, and busy backgrounds; the result should look like a minimalist commercial sticker."
   }
-]
+];
+
+export default TEMPLATES;
