@@ -679,6 +679,18 @@ const App: React.FC = () => {
   const [editorInitialState, setEditorInitialState] = useState<EditorInitialState | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
 
+  useEffect(() => {
+    const handleApiKeyNeeded = () => {
+      setIsSettingsModalOpen(true);
+    };
+
+    window.addEventListener('openaikeyneeded', handleApiKeyNeeded);
+
+    return () => {
+      window.removeEventListener('openaikeyneeded', handleApiKeyNeeded);
+    };
+  }, []);
+
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate(template);
     setActiveView('template-display');

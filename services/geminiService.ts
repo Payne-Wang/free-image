@@ -9,27 +9,21 @@ let aiInstance: GoogleGenAI | null = null;
 const GOOGLE_API_BASE_URL = 'https://generativelanguage.googleapis.com';
 
 // --- Proxy Configuration ---
-// Patch fetch to allow for a custom proxy URL. This is a workaround as the 
-// @google/genai SDK doesn't directly support custom endpoints in the browser.
-// We use Object.defineProperty to avoid a TypeError in environments where
-// window.fetch is a read-only property.
+// Patch fetch to force requests through a default proxy URL.
+// This is a workaround as the @google/genai SDK doesn't directly
+// support custom endpoints in the browser.
 try {
     const originalFetch = window.fetch;
     if (originalFetch) {
         Object.defineProperty(window, 'fetch', {
-            // Set to true so that the property can be changed or deleted later
             configurable: true,
-            // Set to true so that the property shows up during enumeration
             enumerable: true,
-            // The new value for the property
             value: (url: URL | RequestInfo, init?: RequestInit) => {
-                const userBaseUrl = localStorage.getItem('gemini-base-url');
-                const envBaseUrl = process.env.API_BASE_URL;
-                const finalProxyUrl = userBaseUrl || envBaseUrl;
+                const finalProxyUrl = 'https://gptload.sxtlove.online/proxy/google-payg';
                 
                 let finalUrl = url.toString();
 
-                if (finalProxyUrl && finalUrl.startsWith(GOOGLE_API_BASE_URL)) {
+                if (finalUrl.startsWith(GOOGLE_API_BASE_URL)) {
                     finalUrl = finalUrl.replace(GOOGLE_API_BASE_URL, finalProxyUrl.replace(/\/$/, ''));
                 }
 
@@ -60,7 +54,8 @@ const getGoogleAI = (): GoogleGenAI => {
     const apiKey = userApiKey || envApiKey;
 
     if (!apiKey) {
-        throw new Error("API 密钥未配置。请在设置中提供密钥，或在您的 .env 文件中进行配置。");
+        window.dispatchEvent(new CustomEvent('openaikeyneeded'));
+        throw new Error("API 密钥未配置。请在弹出的设置窗口中提供您的密钥。");
     }
     
     try {
@@ -76,21 +71,46 @@ const getGoogleAI = (): GoogleGenAI => {
 
 const handleApiError = (error: any, action: string): Error => {
     console.error(`API call for "${action}" failed:`, error);
-    // Attempt to parse a meaningful message from the error object or string
+    
+    // Standardize error content to a string for reliable checking
+    let errorContent = '';
+    if (error && typeof error.message === 'string') {
+        errorContent = error.message;
+    } else {
+        try {
+            errorContent = JSON.stringify(error);
+        } catch {
+            errorContent = String(error);
+        }
+    }
+    const errorString = errorContent.toLowerCase();
+
+    // Check for authentication error signatures
+    const isAuthError = errorString.includes('unauthorized') || 
+                        errorString.includes('authentication failed') ||
+                        errorString.includes('api key not valid');
+
+    if (isAuthError) {
+        window.dispatchEvent(new CustomEvent('openaikeyneeded'));
+        return new Error('API 密钥无效或验证失败。请在弹出的设置窗口中检查并输入正确的密钥。');
+    }
+
+    // Attempt to parse a meaningful message from the error object or string for other errors
     let message = `在“${action}”期间发生错误: ${error.message || '未知通信错误'}`;
     try {
-      // Errors from the backend might be JSON strings
+      // Errors from the backend might be JSON strings in the message property
       const errorObj = JSON.parse(error.message);
       if (errorObj?.error?.message) {
          // Use the specific message from the API if available
          message = `在“${action}”期间发生错误: ${errorObj.error.message}`;
+      } else if (errorObj?.message) {
+         // Handle cases where message is directly on the parsed object
+         message = `在“${action}”期间发生错误: ${errorObj.message}`;
       }
     } catch(e) {
       // It's not a JSON string, use the original message
-      if (String(error.message).includes('API key not valid')) {
-          message = 'API 密钥无效。请检查您的 API 密钥配置。';
-      } else if (String(error.message).includes('xhr error') || String(error.message).toLowerCase().includes('failed to fetch')) {
-           message = `与 AI 服务的通信失败。这可能是由网络问题、无效的 API 密钥或代理配置错误引起的。`;
+      if (errorString.includes('xhr error') || errorString.includes('failed to fetch')) {
+           message = `与 AI 服务的通信失败。这可能是由网络问题或代理配置错误引起的。`;
       }
     }
 
