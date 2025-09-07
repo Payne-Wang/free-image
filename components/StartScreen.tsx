@@ -15,47 +15,13 @@ const TemplateButton: React.FC<{
   template: Template;
   onSelect: (template: Template) => void;
 }> = ({ template, onSelect }) => {
-  const [iconSrc, setIconSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    let objectUrl: string | null = null;
-    const fetchImage = async () => {
-      try {
-        const response = await fetch(template.iconUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch template icon: ${template.iconUrl}`);
-        }
-        const blob = await response.blob();
-        objectUrl = URL.createObjectURL(blob);
-        setIconSrc(objectUrl);
-      } catch (error) {
-        console.error(error);
-        // Could set a placeholder error image source here
-      }
-    };
-
-    fetchImage();
-
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [template.iconUrl]);
-
   return (
     <button
       onClick={() => onSelect(template)}
-      className="aspect-square bg-gray-900/50 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 hover:ring-2 ring-blue-400 focus:outline-none focus:ring-2 ring-blue-400"
+      className="aspect-square bg-gray-900 rounded-lg overflow-hidden transition-all duration-200 hover:scale-105 hover:ring-2 ring-blue-400 focus:outline-none focus:ring-2 ring-blue-400"
       title={template.name}
     >
-      {iconSrc ? (
-        <img src={iconSrc} alt={template.name} className="w-full h-full object-cover" />
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <Spinner className="w-6 h-6 text-gray-500" />
-        </div>
-      )}
+      <img src={template.iconUrl} alt={template.name} className="w-full h-full object-cover" />
     </button>
   );
 };

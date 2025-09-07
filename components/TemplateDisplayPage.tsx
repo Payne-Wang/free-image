@@ -45,41 +45,26 @@ const ImagePanel: React.FC<{ title: string; imageUrl: string | null; isLoading: 
 };
 
 const TemplateDisplayPage: React.FC<TemplateDisplayPageProps> = ({ template, onBack, onUseInEditor }) => {
-  const [beforeImageUrl, setBeforeImageUrl] = useState<string | null>(null);
+  const [beforeImageUrl] = useState<string | null>(template.baseUrl);
   const [beforeImageFile, setBeforeImageFile] = useState<File | null>(null);
-  const [afterPreviewUrl, setAfterPreviewUrl] = useState<string | null>(null);
+  const [afterPreviewUrl] = useState<string | null>(template.iconUrl);
   const [afterImageUrl, setAfterImageUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  // Effect to load "before" image and "after" preview on mount
   useEffect(() => {
-    let beforeObjectUrl: string | null = null;
-    let afterObjectUrl: string | null = null;
-    
-    const loadImages = async () => {
+    // Effect to load the "before" image as a File object for generation
+    const loadBeforeImageFile = async () => {
       setError(null);
       try {
-        const [beforeResponse, afterResponse] = await Promise.all([
-          fetch(template.baseUrl),
-          fetch(template.iconUrl)
-        ]);
-
+        const beforeResponse = await fetch(template.baseUrl);
         if (!beforeResponse.ok) throw new Error('无法加载原始图片。');
         const beforeBlob = await beforeResponse.blob();
-        beforeObjectUrl = URL.createObjectURL(beforeBlob);
-        setBeforeImageUrl(beforeObjectUrl);
         const fileName = template.baseUrl.split('/').pop() || 'template.jpg';
         const imageFile = new File([beforeBlob], fileName, { type: beforeBlob.type });
         setBeforeImageFile(imageFile);
-
-        if (!afterResponse.ok) throw new Error('无法加载预览图片。');
-        const afterBlob = await afterResponse.blob();
-        afterObjectUrl = URL.createObjectURL(afterBlob);
-        setAfterPreviewUrl(afterObjectUrl);
-
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : '发生未知错误。';
         setError(errorMessage);
@@ -87,13 +72,8 @@ const TemplateDisplayPage: React.FC<TemplateDisplayPageProps> = ({ template, onB
       }
     };
 
-    loadImages();
-
-    return () => {
-      if (beforeObjectUrl) URL.revokeObjectURL(beforeObjectUrl);
-      if (afterObjectUrl) URL.revokeObjectURL(afterObjectUrl);
-    };
-  }, [template]);
+    loadBeforeImageFile();
+  }, [template.baseUrl]);
   
   const handleGenerateAfterImage = async () => {
     if (!beforeImageFile) {

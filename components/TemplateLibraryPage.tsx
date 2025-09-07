@@ -14,46 +14,14 @@ const TemplateCard: React.FC<{
   template: Template;
   onSelect: (template: Template) => void;
 }> = ({ template, onSelect }) => {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-
-  useEffect(() => {
-    let objectUrl: string | null = null;
-    const fetchImage = async () => {
-      try {
-        const response = await fetch(template.iconUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch template image: ${template.iconUrl}`);
-        }
-        const blob = await response.blob();
-        objectUrl = URL.createObjectURL(blob);
-        setImageSrc(objectUrl);
-      } catch (error) {
-        console.error(error);
-        // Could set a placeholder error image source here
-      }
-    };
-
-    fetchImage();
-
-    return () => {
-      if (objectUrl) {
-        URL.revokeObjectURL(objectUrl);
-      }
-    };
-  }, [template.iconUrl]);
-
   return (
     <div
       className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/20 hover:border-blue-500/50 hover:-translate-y-1"
       onClick={() => onSelect(template)}
     >
       <div className="cursor-pointer">
-        <div className="aspect-video bg-gray-900 overflow-hidden flex items-center justify-center">
-          {imageSrc ? (
-            <img src={imageSrc} alt={template.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-          ) : (
-            <Spinner className="w-8 h-8 text-gray-500" />
-          )}
+        <div className="aspect-video bg-gray-900 overflow-hidden">
+          <img src={template.iconUrl} alt={template.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         </div>
         <div className="p-4">
           <h3 className="text-xl font-bold text-white truncate">{template.name}</h3>
