@@ -168,7 +168,7 @@ const PastForwardPage: React.FC = () => {
         }
     };
     
-    const isGenerationComplete = Object.values(generatedImages).every(img => img.status === 'done' || img.status === 'error');
+    const isGenerationComplete = (Object.values(generatedImages) as GeneratedImage[]).every(img => img.status === 'done' || img.status === 'error');
 
     return (
         <div className="w-full flex flex-col items-center justify-center text-center p-4 min-h-[80vh] font-['Roboto'] relative overflow-hidden">

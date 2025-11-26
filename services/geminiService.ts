@@ -214,7 +214,7 @@ const callImageEditingModel = async (parts: any[], action: string): Promise<stri
     try {
         const ai = getGoogleAI();
         const response: GenerateContentResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash-image-preview',
+            model: 'gemini-3-pro-image-preview',
             contents: { parts: parts },
             config: {
                 responseModalities: [Modality.IMAGE, Modality.TEXT],

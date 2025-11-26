@@ -103,7 +103,7 @@ const StartScreen: React.FC<StartScreenProps> = ({ onFileSelect, onImageGenerate
   return (
     <div className="flex flex-col items-center gap-6 animate-fade-in w-full max-w-5xl mx-auto text-center p-4 sm:p-8">
       <h1 className="text-5xl font-extrabold tracking-tight text-gray-100 sm:text-6xl md:text-7xl">
-        free-image
+        Free-image
       </h1>
       <div className="max-w-2xl text-lg text-gray-400 md:text-xl">
         <p>AI 驱动的图像创作与编辑，化繁为简。</p>

@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ activeView, onViewChange, onOpenSetting
               <button onClick={() => onViewChange('editor')} className={`flex items-center gap-3 transition-colors p-2 -m-2 rounded-lg ${activeView === 'editor' ? 'text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'}`}>
                 <SparkleIcon className="w-6 h-6 text-blue-400" />
                 <h1 className="text-xl font-bold tracking-tight">
-                  free-image
+                  Free-image
                 </h1>
               </button>
 
